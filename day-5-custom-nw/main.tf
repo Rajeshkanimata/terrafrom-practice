@@ -65,7 +65,7 @@ resource "aws_eip" "name" {
 # NAT Gateway
 resource "aws_nat_gateway" "name" {
   subnet_id     = aws_subnet.name-1.id
-  allocation_id = aws_eip.name.allocation_id
+  allocation_id = aws_eip.name.id
   tags = {
     Name = "custom-nat"
   }
@@ -120,7 +120,7 @@ resource "aws_security_group" "name" {
 # Public EC2 Instance
 resource "aws_instance" "name" {
   ami                         = "ami-00ecbb8ba07f65d41"
-  instance_type               = "t2.micro"
+  instance_type               = "t3.micro"
   subnet_id                   = aws_subnet.name-1.id
   vpc_security_group_ids      = [aws_security_group.name.id]
   associate_public_ip_address = true
@@ -129,4 +129,15 @@ resource "aws_instance" "name" {
   }
 }
 
+# Private EC2 Instance
+resource "aws_instance" "name-1" {
+  ami                         = "ami-00ecbb8ba07f65d41"
+  instance_type               = "t3.micro"
+  subnet_id                   = aws_subnet.name-2.id
+  vpc_security_group_ids      = [aws_security_group.name.id]
+  associate_public_ip_address = true
+  tags = {
+    Name = "private-ec2"
+  }
+}
 
