@@ -40,6 +40,34 @@ resource "aws_db_subnet_group" "sub_grp" {
   }
 }
 
+
+
+# Create and store RDS credentials in Secrets Manager
+
+resource "aws_secretsmanager_secret" "rds_secret" {
+  name        = "rds-credentials"
+  description = "RDS MySQL admin credentials"
+}
+
+# Generate a random password
+resource "random_password" "rds_password" {
+  length  = 16
+  special = true
+}
+
+resource "aws_secretsmanager_secret_version" "rds_secret_version" {
+  secret_id     = aws_secretsmanager_secret.rds_secret.id
+  secret_string = jsonencode({
+    username = "admin"
+    password = random_password.rds_password.result
+  })
+}
+
+# Decode the JSON secret for use in Terraform
+locals {
+  rds_creds = jsondecode(aws_secretsmanager_secret_version.rds_secret_version.secret_string)
+}
+
 # Create a RDS instance
 
 resource "aws_db_instance" "default" {
@@ -49,10 +77,13 @@ resource "aws_db_instance" "default" {
   engine                  = "mysql"
   engine_version          = "8.0"
   instance_class          = "db.t3.micro"
-  username                = "admin"
-  password                = "Cloud123"
+  username                = local.rds_creds.username
+  password                = local.rds_creds.password
   db_subnet_group_name    = aws_db_subnet_group.sub_grp.id
   parameter_group_name    = "default.mysql8.0"
+  skip_final_snapshot         = true
+  #final_snapshot_identifier   = "rds-test-final-snapshot-1"
+
 
   # Enable backups and retention
   backup_retention_period  = 7   # Retain backups for 7 days
