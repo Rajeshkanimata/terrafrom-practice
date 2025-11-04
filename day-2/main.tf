@@ -8,8 +8,8 @@ resource "aws_subnet" "my_subnet" {
 }
 
 resource "aws_instance" "my_instance" {
-  ami           = "ami-00ecbb8ba07f65d41"
-  instance_type = "t3.micro"
+  ami           = ""
+  instance_type = ""
   subnet_id     = aws_subnet.my_subnet.id
 }
 
