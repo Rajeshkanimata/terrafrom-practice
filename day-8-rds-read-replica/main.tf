@@ -45,7 +45,7 @@ resource "aws_db_subnet_group" "sub_grp" {
 # Create and store RDS credentials in Secrets Manager
 
 resource "aws_secretsmanager_secret" "rds_secret" {
-  name        = "rds-credentials"
+  name        = "rds-credentials-1"
   description = "RDS MySQL admin credentials"
 }
 
@@ -81,8 +81,8 @@ resource "aws_db_instance" "default" {
   password                = local.rds_creds.password
   db_subnet_group_name    = aws_db_subnet_group.sub_grp.id
   parameter_group_name    = "default.mysql8.0"
-  skip_final_snapshot         = true
-  #final_snapshot_identifier   = "rds-test-final-snapshot-1"
+  skip_final_snapshot     = true
+  #final_snapshot_identifier   = "rds-test-final-snapshot-3"
 
 
   # Enable backups and retention
@@ -93,7 +93,7 @@ resource "aws_db_instance" "default" {
   # Add a Read Replica for the RDS instance
 resource "aws_db_instance" "read_replica" {
   identifier                 = "rds-test-replica"
-  replicate_source_db        = aws_db_instance.default.identifier
+  replicate_source_db        = aws_db_instance.default.arn
   instance_class             = "db.t3.micro"
   publicly_accessible        = false
   auto_minor_version_upgrade = true
