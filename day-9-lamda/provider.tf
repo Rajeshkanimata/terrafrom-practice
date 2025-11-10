@@ -1,0 +1,45 @@
+# IAM Role for Lambda Execution
+resource "aws_iam_role" "lambda_exec_role" {
+  name = "lambda-exec-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+# Attach AWS Managed Policy for Lambda basic execution (CloudWatch Logs, etc.)
+resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
+  role       = aws_iam_role.lambda_exec_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+# Create a Lambda function
+resource "aws_lambda_function" "my_lambda" {
+  function_name = "my-lambda-func"
+  role          = aws_iam_role.lambda_exec_role.arn
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.9"
+
+  # Package your code as a .zip and reference the local path
+  filename         = "lambda_code.zip"
+  source_code_hash = filebase64sha256("lambda_code.zip")
+
+  environment {
+    variables = {
+      ENV = "dev"
+    }
+  }
+
+  tags = {
+    Name = "MyLambdaFunction"
+  }
+}
