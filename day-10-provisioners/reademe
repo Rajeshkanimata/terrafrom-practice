@@ -1,0 +1,66 @@
+// change the key name in the code
+// in aws_instance block we use connection block to connect to intsance 
+
+// resource "aws_instance" "server" {
+//   ami                         = "ami-0261755bbcb8c4a84" # Ubuntu AMI
+//   instance_type               = "t2.micro"
+//   key_name                    = aws_key_pair.example.key_name
+//   subnet_id                   = aws_subnet.sub1.id
+//   vpc_security_group_ids      = [aws_security_group.webSg.id]
+//   associate_public_ip_address = true
+
+//   tags = {
+//     Name = "UbuntuServer"
+//   }
+
+//   connection {
+//     type        = "ssh"
+//     user        = "ubuntu"                          # ✅ Correct for Ubuntu AMIs
+//     private_key = file("~/.ssh/id_rsa")             # Path to private key
+//     host        = self.public_ip
+//     timeout     = "2m"
+//   }
+
+//   provisioner "file" {
+//     source      = "file10"
+//     destination = "/home/ubuntu/file10"
+//   }
+
+// #   provisioner "remote-exec" {
+// #     inline = [
+// #       "touch /home/ubuntu/file200",
+// #       "echo 'hello from awsss' >> /home/ubuntu/file200"
+// #     ]
+// #   }
+//  }// #    provisioner "local-exec" {
+// #     command = "touch file500" 
+   
+// #  }
+
+
+
+
+// provisioner block to add file in remote ec2
+// once apply is done and we can eidt provisioner there it self we use null resourec block to make changes
+
+
+// // resource "null_resource" "run_script" {
+// //   provisioner "remote-exec" {
+// //     connection {
+// //       host        = aws_instance.server.public_ip
+// //       user        = "ubuntu"
+// //       private_key = file("~/.ssh/id_rsa")
+// //     }
+
+// //     inline = [
+// //       "echo 'hello from awsdevops' >> /home/ubuntu/file200"
+// //     ]
+// //   }
+
+// //   triggers = {
+// //     always_run = "${timestamp()}" # Forces rerun every time
+// //   }
+// // }
+
+
+// terrafor does not see changes in intance block so we use null resourec to make terraform detect changes
